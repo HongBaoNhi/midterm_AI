@@ -1,4 +1,4 @@
-import os
+from sokoban_core import resolve_map_path
 
 class MultiEnv:
     def __init__(self, level_file):
@@ -17,11 +17,12 @@ class MultiEnv:
         # Remember which agent moved each box most recently
         self.owner = {}
         
+        resolved_level_path = resolve_map_path(level_file)
         try:
-            with open(level_file, 'r') as map_f:
+            with resolved_level_path.open('r') as map_f:
                 lines_data = map_f.readlines()
-        except FileNotFoundError:
-            print("Map file not found!")
+        except OSError as error:
+            print(f"Map file '{level_file}' could not be opened: {error}")
             return
             
         row_id = 0

@@ -1,3 +1,18 @@
+from pathlib import Path
+
+
+def resolve_map_path(map_file_path):
+    #Resolve map names relative to this project, regardless of launch directory
+    requested_path = Path(map_file_path)
+    if requested_path.is_absolute():
+        return requested_path
+
+    project_path = Path(__file__).resolve().parent / requested_path
+    if project_path.exists():
+        return project_path
+    return requested_path
+
+
 class SokobanState:
     def __init__(self, agent_pos, boxes):
         # print("Creating state:", agent_pos, boxes)
@@ -32,11 +47,12 @@ class SokobanGame:
         self.init_agent = None
         
         # Read the level layout from the text file
+        resolved_map_path = resolve_map_path(map_file_path)
         try:
-            with open(map_file_path, 'r') as file_obj:
+            with resolved_map_path.open('r') as file_obj:
                 grid_lines = file_obj.readlines()
-        except:
-            print("Could not open the map file.")
+        except OSError as error:
+            print(f"Could not open the map file '{map_file_path}': {error}")
             return
             
         # This scans every tile, but it only happens when loading a level
